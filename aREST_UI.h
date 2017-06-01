@@ -143,11 +143,7 @@ virtual void root_answer() {
     // Sliders UI
     for (int i = 0; i < sliders_index; i++) {
       addToBuffer("<div class=\"row\">");
-      #if defined(ESP8266)
-      addToBuffer("<div class=\"col-md-2\"><input type='range' value='0' max='1023' min='0' step='5' id='slider");
-      #else
       addToBuffer("<div class=\"col-md-2\"><input type='range' value='0' max='255' min='0' step='5' id='slider");
-      #endif
       addToBuffer(sliders[i]);
       addToBuffer("'></div>");
       addToBuffer("</div>");
@@ -189,7 +185,7 @@ virtual void root_answer() {
       addToBuffer(callFunctionNames[i]);
       addToBuffer("').click(function() {$.getq('queue','/");
       addToBuffer(callFunctionNames[i]);
-      addToBuffer("');});");
+      addToBuffer("');location.reload();});");
     }
 
     // Sliders JavaScript
