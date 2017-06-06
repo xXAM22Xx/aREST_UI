@@ -1,21 +1,21 @@
-/*
-  This a simple example of the aREST UI Library for the ESP8266.
-  See the README file for more details.
+//#define DEBUG_MODE 1
+//#define LIGHTWEIGHT 1
 
-  Written in 2014-2016 by Marco Schwartz under a GPL license.
-*/
-
-// Import required libraries
+#include <Servo.h>
 #include <ESP8266WiFi.h>
 #include <aREST.h>
 #include <aREST_UI.h>
+
 
 // Create aREST instance
 aREST_UI rest = aREST_UI();
 
 // WiFi parameters
-const char* ssid = "yourSSID";
-const char* password = "yourPassword";
+const char* ssid = "ssid";
+const char* password = "password";
+
+int pos = 90;
+Servo servo;
 
 // The port to listen for incoming TCP connections
 #define LISTEN_PORT           80
@@ -23,34 +23,21 @@ const char* password = "yourPassword";
 // Create an instance of the server
 WiFiServer server(LISTEN_PORT);
 
-// Variables to be exposed to the API
-int temperature;
-float humidity;
-
-int ledControl(String command);
-
 void setup(void) {
   // Start Serial
   Serial.begin(115200);
-
+  servo.attach(D6);
   // Set the title
   rest.title("aREST UI Demo");
 
-  // Create button to control pin 5
-  rest.button(5);
-
-  // Init variables and expose them to REST API
-  temperature = 22;
-  humidity = 39.1;
-  rest.variable("temperature", &temperature);
-  rest.variable("humidity", &humidity);
-
-  // Labels
-  rest.label("temperature");
-  rest.label("humidity");
-
-  // Function to be exposed
-  rest.function("led", ledControl);
+  rest.button(5,"LED");
+  rest.slider(5);
+  rest.function("servoPlus",servoPlus);
+  rest.function("servoMinus",servoMinus);
+  rest.variable("Servo",&pos);
+  rest.label("Servo");
+  rest.callFunction("servoPlus","push");
+  rest.callFunction("servoMinus","push");
 
   // Give name and ID to device
   rest.set_id("1");
@@ -87,13 +74,14 @@ void loop() {
 
 }
 
-int ledControl(String command) {
-  // Print command
-  Serial.println(command);
 
-  // Get state from command
-  int state = command.toInt();
-
-  digitalWrite(5, state);
+int servoPlus(String command) {
+  pos+=10;
+  servo.write(pos);
+  return 1;
+}
+int servoMinus(String command) {
+  pos-=10;
+  servo.write(pos);
   return 1;
 }
